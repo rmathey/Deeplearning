@@ -1,0 +1,237 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "DeepLearning"
+  },
+  "paths": {
+    "/signup": {
+      "put": {
+        "summary": "Inscription",
+        "description": "Créer un compte",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "header",
+            "description": "Username",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "password",
+            "in": "header",
+            "description": "Password",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/signin": {
+      "get": {
+        "summary": "Connexion",
+        "description": "Pour s'authentifier",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "header",
+            "description": "Username",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "password",
+            "in": "header",
+            "description": "Password",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/addWord": {
+      "put": {
+        "summary": "Ajouter un mot",
+        "description": "Ajouter un mot",
+        "parameters": [
+          {
+            "name": "word",
+            "in": "query",
+            "description": "Word",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "description": "Token",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/delWord": {
+      "put": {
+        "summary": "Supprimer un mot",
+        "description": "Supprimer un mot",
+        "parameters": [
+          {
+            "name": "word",
+            "in": "query",
+            "description": "Word",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "description": "Token",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/modifyWord": {
+      "put": {
+        "summary": "Modifier un mot",
+        "description": "Modifier un mot",
+        "parameters": [
+          {
+            "name": "word",
+            "in": "query",
+            "description": "Word",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "token",
+            "in": "header",
+            "description": "Token",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/getInfo": {
+      "get": {
+        "summary": "Informations sur l'utilisateur",
+        "description": "Informations sur l'utilisateur",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "description": "Token",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/emptyList": {
+      "put": {
+        "summary": "Supprimer la liste de vocabulaire",
+        "description": "Supprimer la liste de vocabulaire",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "description": "Token",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/trad": {
+      "get": {
+        "summary": "Traduire une phrase du français vers l'anglais",
+        "description": "Traduire une phrase du français vers l'anglais",
+        "parameters": [
+          {
+            "name": "sentence",
+            "in": "query",
+            "description": "Phrase",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/update": {
+      "get": {
+        "summary": "Met à jour la liste de vocabulaire",
+        "description": "Met à jour la liste de vocabulaire pour chaque mot non traduit",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "description": "Token",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    }
+  }
+}

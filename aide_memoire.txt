@@ -1,0 +1,9 @@
+npm init
+
+npm install express
+
+npm i swagger-ui-express
+
+npm install mongodb@4.13
+
+npm i --S express body-parser

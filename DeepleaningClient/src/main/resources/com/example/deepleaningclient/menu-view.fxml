@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.deepleaningclient.MenuController">
+
+    <Label>MENU:</Label>
+    <Label fx:id="usernameText"> </Label>
+    <Label fx:id="listeText"> </Label>
+    <Button text="Reload" onAction="#reload"/>
+    <Button text="Update" onAction="#update"/>
+    <TextField fx:id="addWordField" promptText="Mot à ajouter"/>
+    <TextField fx:id="deleteWordField" promptText="Mot à supprimer"/>
+    <Button text="Ajouter un mot" onAction="#add"/>
+    <Button text="Supprimer un mot" onAction="#delete"/>
+    <Button text="Reset la liste de vocabulaire" onAction="#reset"/>
+</VBox>

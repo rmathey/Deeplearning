@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
+const CryptoJS = require("crypto-js");
 
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const uri = require("./credentials.json").mongoDB;
@@ -35,7 +36,7 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 
 app.use(
-  "/api-docs",
+  "/swagger",
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocument, options)
 );
@@ -43,122 +44,21 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.put("/signup", async (req, res) => {
+// Création de compte
+app.post("/signup", async (req, res) => {
   const headers = JSON.parse(JSON.stringify(req.headers));
-  message_retour = await createUser(headers.username, headers.password);
-  return res.json({ message: message_retour });
-});
-
-app.get("/signin", async (req, res) => {
-  const headers = JSON.parse(JSON.stringify(req.headers));
-  const token = await authentification(headers.username, headers.password);
-  if (token) {
-    message_retour = token;
-  } else {
-    message_retour = "Username or password incorrect";
-  }
-  return res.send(message_retour);
-});
-
-app.put("/addWord", async (req, res) => {
-  const headers = JSON.parse(JSON.stringify(req.headers));
-  const token = headers.token;
-  const user = await checkToken(token);
-  if (user) {
-    message_retour = await addWord(user.username, req.query.word);
-  } else {
-    message_retour = "Token invalide";
-  }
-  return res.json({ message: message_retour });
-});
-
-app.put("/delWord", async (req, res) => {
-  const headers = JSON.parse(JSON.stringify(req.headers));
-  const token = headers.token;
-  const user = await checkToken(token);
-  if (user) {
-    message_retour = await delWord(user.username, req.query.word);
-  } else {
-    message_retour = "Token invalide";
-  }
-  return res.json({ message: message_retour });
-});
-
-app.put("/modifyWord", async (req, res) => {
-  const headers = JSON.parse(JSON.stringify(req.headers));
-  const token = headers.token;
-  const user = await checkToken(token);
-  if (user) {
-    message_retour = await modifyWord(
-      user.username,
-      req.query.word1,
-      req.query.word2
-    );
-  } else {
-    message_retour = "Token invalide";
-  }
-  return res.json({ message: message_retour });
-});
-
-app.get("/getInfo", async (req, res) => {
-  const headers = JSON.parse(JSON.stringify(req.headers));
-  const token = headers.token;
-  const user = await checkToken(token);
-  if (user) {
-    message_retour = await getUser(user.username);
-  } else {
-    message_retour = "401";
-  }
-  return res.send(message_retour);
-});
-
-app.put("/emptyList", async (req, res) => {
-  const headers = JSON.parse(JSON.stringify(req.headers));
-  const token = headers.token;
-  const user = await checkToken(token);
-  if (user) {
-    message_retour = await emptyList(user.username);
-  } else {
-    message_retour = "Token invalide";
-  }
-  return res.json({ message: message_retour });
-});
-
-app.get("/trad", async (req, res) => {
-  const message_retour = await translate(req.query.sentence);
-  return res.json({ message: message_retour });
-});
-
-app.put("/update", async (req, res) => {
-  const headers = JSON.parse(JSON.stringify(req.headers));
-  const token = headers.token;
-  const user = await checkToken(token);
-  if (user) {
-    message_retour = await update(user.username);
-  } else {
-    message_retour = "Token invalide";
-  }
-  return res.json({ message: message_retour });
-});
-
-app.get("/checkToken", async (req, res) => {
-  try {
-    const headers = JSON.parse(JSON.stringify(req.headers));
-    message_retour = await checkToken(headers.jwt);
-    if (message_retour == null) {
-        return res.send("401");
+  if (headers.username !== undefined && headers.password !== undefined) {
+    const username = headers.username;
+    const password = hashPassword(headers.password);
+    if (username.length >= 3 && password.length >= 3) {
+      code_retour = await createUser(username, password);
+    } else {
+      code_retour = "400"; // Bad Request format incorrect
     }
-    else {
-        return res.send("200");
-    }
-  } catch (e) {
-    console.log("Une erreur s'est produite : " + e.message);
-    res.send("401");
+  } else {
+    code_retour = "400"; // Bad Request paramètre manquant
   }
-});
-
-app.listen(3000, () => {
-  console.log("Server listening...");
+  return res.send(code_retour);
 });
 
 async function createUser(username, password) {
@@ -170,26 +70,96 @@ async function createUser(username, password) {
       const users = database.collection("users");
       const query = { username: username, password: password, liste: liste };
       const user = await users.insertOne(query);
-      return "200";
+      return "200"; // Utilisateur créé
     } else {
-      return "409";
+      return "409"; // L'utilisateur existe déjà
     }
+  } catch (error) {
+    return "500"; // Erreur du serveur
+  }
+}
+
+// Connexion
+app.get("/signin", async (req, res) => {
+  const headers = JSON.parse(JSON.stringify(req.headers));
+  const username = headers.username;
+  const password = hashPassword(headers.password);
+  const token = await authentification(username, password);
+  if (token) {
+    code_retour = token;
+  } else {
+    code_retour = "404";
+  }
+  return res.send(code_retour);
+});
+
+async function authentification(username, password) {
+  var user = await getUser(username);
+  if (user === null) {
+    return "404";
+  }
+  if (user.username == username && user.password == password) {
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+      },
+      SECRET,
+      { expiresIn: "24h" }
+    );
+    return token;
+  } else {
+    return "404";
+  }
+}
+
+// Récupérer les informations de l'utilisateur
+app.get("/getInfo", async (req, res) => {
+  const headers = JSON.parse(JSON.stringify(req.headers));
+  const token = headers.token;
+  const user = await checkToken(token);
+  if (user) {
+    message_retour = await getUser(user.username);
+  } else {
+    message_retour = "403";
+  }
+  return res.send(message_retour);
+});
+
+async function getUser(username) {
+  try {
+    const database = client.db(databaseName);
+    const users = database.collection("users");
+    const query = { username: username };
+    const user = await users.findOne(query);
+    return user;
   } catch (error) {
     return "503";
   }
 }
 
+// Ajouter un mot
+app.put("/addWord", async (req, res) => {
+  const headers = JSON.parse(JSON.stringify(req.headers));
+  const token = headers.token;
+  const user = await checkToken(token);
+  if (user) {
+    code_retour = await addWord(user.username, req.query.word);
+  } else {
+    code_retour = "403";
+  }
+  return res.send(code_retour);
+});
+
 async function addWord(username, word) {
-  if (word.length === 0) {
-    return "Encoder entrer un mot";
+  if (word === undefined || word.length === 0) {
+    return "400";
   }
   try {
     const database = client.db(databaseName);
     const users = database.collection("users");
-
     const userItem = await getUser(username);
 
-    console.log(userItem.liste);
     var exist = false;
     for (let i = 0; i < userItem.liste.length; i++) {
       if (Object.keys(userItem.liste[i])[0] == word) {
@@ -206,18 +176,31 @@ async function addWord(username, word) {
         { username: username },
         { $push: { liste: wordElement } }
       );
-      return word + " a été rajouté dans la liste";
+      return "200";
     } else {
-      return word + " est déja dans la liste";
+      return "409";
     }
   } catch (error) {
     return "503";
   }
 }
 
+// Supprimer un mot
+app.put("/delWord", async (req, res) => {
+  const headers = JSON.parse(JSON.stringify(req.headers));
+  const token = headers.token;
+  const user = await checkToken(token);
+  if (user) {
+    code_retour = await delWord(user.username, req.query.word);
+  } else {
+    code_retour = "403";
+  }
+  return res.send(code_retour);
+});
+
 async function delWord(username, word) {
-  if (word.length === 0) {
-    return "Encoder entrer un mot";
+  if (word === undefined || word.length === 0) {
+    return "400";
   }
   try {
     const database = client.db(databaseName);
@@ -227,64 +210,29 @@ async function delWord(username, word) {
       { username: username },
       { $pull: { liste: { [word]: { $exists: true } } } }
     );
-    return res;
+    if (res.modifiedCount > 0) {
+      return "200";
+    }
+    else {
+      return "409";
+    }
   } catch (error) {
     return "503";
   }
 }
 
-async function modifyWord(username, word1, word2) {
-  if (word1.length === 0 && word2.length === 0) {
-    return "Encoder entrer 2 mots valides";
+// Supprimer la liste de vocabulaire d'un utilisateur
+app.put("/emptyList", async (req, res) => {
+  const headers = JSON.parse(JSON.stringify(req.headers));
+  const token = headers.token;
+  const user = await checkToken(token);
+  if (user) {
+    code_retour = await emptyList(user.username);
+  } else {
+    code_retour = "403";
   }
-  try {
-    const database = client.db(databaseName);
-    const users = database.collection("users");
-
-    const res = await users.updateOne(
-      { username: username, ["liste." + word1]: { $exists: true } },
-      { $set: { ["liste.$." + word1]: word2 } }
-    );
-
-    return res;
-  } catch (error) {
-    return "503";
-  }
-}
-
-async function getUser(username) {
-  try {
-    const database = client.db(databaseName);
-    const users = database.collection("users");
-    const query = { username: username };
-    const user = await users.findOne(query);
-    return user;
-  } catch (error) {
-    return "503";
-  }
-}
-
-async function translate(text) {
-  const apiKey = "319aff1a-cac2-bf9e-e34c-ee18669072c2:fx";
-  const apiUrl = "https://api-free.deepl.com/v2/translate";
-
-  const sourceLang = "FR";
-  const targetLang = "EN";
-
-  const response = await axios
-    .post(apiUrl, null, {
-      params: {
-        auth_key: apiKey,
-        text: text,
-        source_lang: sourceLang,
-        target_lang: targetLang,
-      },
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-  return response.data.translations[0].text;
-}
+  return res.send(code_retour);
+});
 
 async function emptyList(username) {
   try {
@@ -304,38 +252,18 @@ async function emptyList(username) {
   }
 }
 
-async function authentification(username, password) {
-  var user = await getUser(username);
-  console.log(user);
-  if (user === null) {
-    return false;
-  }
-  if (user.username == username && user.password == password) {
-    const token = jwt.sign(
-      {
-        id: user.id,
-        username: user.username,
-      },
-      SECRET,
-      { expiresIn: "24h" }
-    );
-    return token;
+// Mettre à jour la liste de vocabulaire d'un utilisateur
+app.put("/update", async (req, res) => {
+  const headers = JSON.parse(JSON.stringify(req.headers));
+  const token = headers.token;
+  const user = await checkToken(token);
+  if (user) {
+    code_retour = await update(user.username);
   } else {
-    return false;
+    code_retour = "403";
   }
-}
-
-async function checkToken(token) {
-  token = token.trim();
-  jwt.verify(token, SECRET, (err, decodedToken) => {
-    if (err) {
-      return false;
-    }
-  });
-
-  const decoded = jwt.decode(token);
-  return decoded;
-}
+  return res.send(code_retour);
+});
 
 async function update(username) {
   try {
@@ -361,5 +289,122 @@ async function update(username) {
     return "200";
   } catch (error) {
     return "503";
+  }
+}
+
+// Modifier un mot dans la liste de vocabulaire
+app.put("/modifyWord", async (req, res) => {
+  const headers = JSON.parse(JSON.stringify(req.headers));
+  const token = headers.token;
+  const user = await checkToken(token);
+  if (user) {
+    code_retour = await modifyWord(
+      user.username,
+      req.query.word1,
+      req.query.word2
+    );
+  } else {
+    code_retour = "403";
+  }
+  return res.send(code_retour);
+});
+
+async function modifyWord(username, word1, word2) {
+  if (word1 === undefined || word2 === undefined || word1.length === 0 || word2.length === 0) {
+    return "400";
+  }
+  try {
+    const database = client.db(databaseName);
+    const users = database.collection("users");
+
+    const res = await users.updateOne(
+      { username: username, ["liste." + word1]: { $exists: true } },
+      { $set: { ["liste.$." + word1]: word2 } }
+    );
+    
+    if (res.modifiedCount > 0) {
+      return "200";
+    }
+    else {
+      return "409";
+    }
+  } catch (error) {
+    return "503";
+  }
+}
+
+app.get("/checkToken", async (req, res) => {
+  try {
+    const headers = JSON.parse(JSON.stringify(req.headers));
+    message_retour = await checkToken(headers.jwt);
+    if (message_retour == null) {
+      return res.send("401");
+    } else {
+      return res.send("200");
+    }
+  } catch (e) {
+    console.log("Une erreur s'est produite : " + e.message);
+    res.send("401");
+  }
+});
+
+async function checkToken(token) {
+  token = token.trim();
+  jwt.verify(token, SECRET, (err, decodedToken) => {
+    if (err) {
+      return false;
+    }
+  });
+
+  const decoded = jwt.decode(token);
+  return decoded;
+}
+
+function hashPassword(password) {
+  const hashedPassword = CryptoJS.SHA256(password).toString();
+  return hashedPassword;
+}
+
+async function translate(text) {
+  const apiKey = "319aff1a-cac2-bf9e-e34c-ee18669072c2:fx";
+  const apiUrl = "https://api-free.deepl.com/v2/translate";
+
+  const sourceLang = "FR";
+  const targetLang = "EN";
+
+  const response = await axios
+    .post(apiUrl, null, {
+      params: {
+        auth_key: apiKey,
+        text: text,
+        source_lang: sourceLang,
+        target_lang: targetLang,
+      },
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  return response.data.translations[0].text;
+}
+
+app.listen(3000, () => {
+  console.log("Server listening...");
+});
+
+// Supprimer tout le contenu de la collection
+app.delete("/deleteAll", async (req, res) => {
+  code_retour = await resetCollection();
+  return res.send(code_retour);
+});
+
+async function resetCollection() {
+  try {
+    const database = client.db(databaseName);
+    const users = database.collection("users");
+    const query = {};
+    const response = await users.deleteMany(query);
+    return "200"; // Collection réinitialisée
+  } catch (error) {
+    return "500"; // Erreur du serveur
   }
 }

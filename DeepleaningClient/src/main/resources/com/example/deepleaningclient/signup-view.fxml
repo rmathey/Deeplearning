@@ -6,17 +6,17 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.deepleaningclient.LoginController">
+      fx:controller="com.example.deepleaningclient.SignupController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
 
-    <Label>Page de connexion</Label>
-    <Button text="Création de compte" onAction="#toSignup"/>
+    <Label>Page de création de compte</Label>
+    <Button text="Page de connexion" onAction="#toLogin"/>
 
     <TextField fx:id="usernameField" promptText="Nom d'utilisateur"/>
     <PasswordField fx:id="passwordField" promptText="Mot de passe"/>
 
-    <Label fx:id="loginText"> </Label>
-    <Button text="Se connecter" onAction="#loginClick"/>
+    <Label fx:id="signupText"> </Label>
+    <Button text="Créer le compte" onAction="#signupClick"/>
 </VBox>

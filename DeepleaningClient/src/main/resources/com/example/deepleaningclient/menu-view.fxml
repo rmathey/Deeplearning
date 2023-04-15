@@ -8,6 +8,9 @@
 
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.example.deepleaningclient.MenuController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
 
     <Label>MENU:</Label>
     <Label fx:id="usernameText"> </Label>
@@ -19,4 +22,8 @@
     <Button text="Ajouter un mot" onAction="#add"/>
     <Button text="Supprimer un mot" onAction="#delete"/>
     <Button text="Reset la liste de vocabulaire" onAction="#reset"/>
+
+
+    <Label fx:id="menuInfoText"> </Label>
+    <Button text="Déconnexion" onAction="#toLogin"/>
 </VBox>

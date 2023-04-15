@@ -1,5 +1,6 @@
 package com.example.deepleaningclient;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.BufferedReader;
@@ -27,6 +28,15 @@ public class LoginController {
     private TextField passwordField;
 
     @FXML
+    public void toSignup(ActionEvent event) throws IOException {
+        Parent signupViewParent = FXMLLoader.load(getClass().getResource("signup-view.fxml"));
+        Scene signupViewScene = new Scene(signupViewParent, 1200, 800);
+        Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+        window.setScene(signupViewScene);
+        window.show();
+    }
+
+    @FXML
     protected void loginClick(ActionEvent event) {
         String username = this.usernameField.getText();
         String password = this.passwordField.getText();
@@ -34,21 +44,22 @@ public class LoginController {
         try {
             String header[][] = new String[2][2];
             header[0][0] = "username";
-            header[0][1] = "dartrem";//username;
+            header[0][1] = username;
             header[1][0] = "password";
-            header[1][1] = "password";//password;
+            header[1][1] = password;
             String response = Server.APIrequest("/signin", "GET", header);
             boolean connected = this.checkJWT(response);
 
             if (connected) {
                 this.jwt = response;
                 loginText.setText("");
-                this.changeSceneMenu(event, "menu-view.fxml");
+                this.toMenu(event, "menu-view.fxml");
             }
             else {
-                loginText.setText("Connexion a échoué");
+                loginText.setText("Username ou mot de passe incorrecte");
             }
         } catch (Exception e) {
+            loginText.setText("Erreur inconnue");
             e.printStackTrace();
         }
     }
@@ -69,7 +80,7 @@ public class LoginController {
             return false;
         }
     }
-    public void changeSceneMenu(ActionEvent event, String sceneName){
+    public void toMenu(ActionEvent event, String sceneName){
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(sceneName));
             Parent root = loader.load();

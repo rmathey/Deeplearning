@@ -28,7 +28,7 @@ public class SignupController {
     @FXML
     public void toLogin(ActionEvent event) throws IOException {
         Parent signupViewParent = FXMLLoader.load(getClass().getResource("login-view.fxml"));
-        Scene signupViewScene = new Scene(signupViewParent, 1200, 800);
+        Scene signupViewScene = new Scene(signupViewParent, 800, 600);
         Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
         window.setScene(signupViewScene);
         window.show();
@@ -59,5 +59,11 @@ public class SignupController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    @FXML
+    protected void quitClick(ActionEvent event) {
+        Scene scene = ((Node) event.getSource()).getScene();
+        Stage stage = (Stage) scene.getWindow();
+        stage.close();
     }
 }

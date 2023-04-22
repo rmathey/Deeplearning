@@ -30,7 +30,7 @@ public class LoginController {
     @FXML
     public void toSignup(ActionEvent event) throws IOException {
         Parent signupViewParent = FXMLLoader.load(getClass().getResource("signup-view.fxml"));
-        Scene signupViewScene = new Scene(signupViewParent, 1200, 800);
+        Scene signupViewScene = new Scene(signupViewParent, 800, 600);
         Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
         window.setScene(signupViewScene);
         window.show();
@@ -44,9 +44,9 @@ public class LoginController {
         try {
             String header[][] = new String[2][2];
             header[0][0] = "username";
-            header[0][1] = username;
+            header[0][1] = "dartrem2";//username;
             header[1][0] = "password";
-            header[1][1] = password;
+            header[1][1] = "password";//password;
             String response = Server.APIrequest("/signin", "GET", header);
             boolean connected = this.checkJWT(response);
 
@@ -79,6 +79,12 @@ public class LoginController {
             e.printStackTrace();
             return false;
         }
+    }
+    @FXML
+    protected void quitClick(ActionEvent event) {
+        Scene scene = ((Node) event.getSource()).getScene();
+        Stage stage = (Stage) scene.getWindow();
+        stage.close();
     }
     public void toMenu(ActionEvent event, String sceneName){
         try {

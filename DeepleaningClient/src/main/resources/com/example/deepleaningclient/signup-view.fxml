@@ -5,6 +5,7 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.example.deepleaningclient.SignupController">
     <padding>
@@ -12,11 +13,19 @@
     </padding>
 
     <Label>Page de création de compte</Label>
-    <Button text="Page de connexion" onAction="#toLogin"/>
+    <Button text="Vers la page de connexion" onAction="#toLogin"/>
 
-    <TextField fx:id="usernameField" promptText="Nom d'utilisateur"/>
-    <PasswordField fx:id="passwordField" promptText="Mot de passe"/>
+    <HBox alignment="CENTER" spacing="20">
+        <VBox spacing="20">
+            <TextField fx:id="usernameField" promptText="Nom d'utilisateur" prefWidth="250"/>
+            <PasswordField fx:id="passwordField" promptText="Mot de passe" prefWidth="250"/>
+        </VBox>
+    </HBox>
 
     <Label fx:id="signupText"> </Label>
-    <Button text="Créer le compte" onAction="#signupClick"/>
+
+    <HBox alignment="CENTER" spacing="20">
+        <Button text="Créer le compte" onAction="#signupClick"/>
+        <Button text="Quitter" onAction="#quitClick"/>
+    </HBox>
 </VBox>

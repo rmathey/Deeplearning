@@ -58,15 +58,8 @@ public class User {
         return this.username;
     }
 
-    public String getListe() {
-        String res = "";
-        for (int i = 0; i < this.liste.length; i++) {
-            res += this.liste[i][0];
-            res += " = ";
-            res += this.liste[i][1];
-            res += "\n";
-        }
-        return res;
+    public String[][] getListe() {
+        return this.liste;
     }
 
     private String getInfo(String jwt) {

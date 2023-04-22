@@ -5,25 +5,42 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.example.deepleaningclient.MenuController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
 
-    <Label>MENU:</Label>
     <Label fx:id="usernameText"> </Label>
-    <Label fx:id="listeText"> </Label>
-    <Button text="Reload" onAction="#reload"/>
-    <Button text="Update" onAction="#update"/>
-    <TextField fx:id="addWordField" promptText="Mot à ajouter"/>
-    <TextField fx:id="deleteWordField" promptText="Mot à supprimer"/>
-    <Button text="Ajouter un mot" onAction="#add"/>
-    <Button text="Supprimer un mot" onAction="#delete"/>
-    <Button text="Reset la liste de vocabulaire" onAction="#reset"/>
 
+    <TableView fx:id="tableView">
+        <columns>
+            <TableColumn text="Français" fx:id="colonneMot" />
+            <TableColumn text="Anglais" fx:id="colonneTraduction" />
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER" spacing="20">
+        <Button text="Recharger" onAction="#reload"/>
+        <Button text="Mettre à jour la liste" onAction="#update"/>
+    </HBox>
+    <HBox alignment="CENTER" spacing="20">
+        <TextField fx:id="addWordField" promptText="Mot à ajouter"/>
+        <Button text="Ajouter un mot" onAction="#add"/>
+    </HBox>
+    <HBox alignment="CENTER" spacing="20">
+        <TextField fx:id="deleteWordField" promptText="Mot à supprimer"/>
+        <Button text="Supprimer un mot" onAction="#delete"/>
+    </HBox>
 
     <Label fx:id="menuInfoText"> </Label>
-    <Button text="Déconnexion" onAction="#toLogin"/>
+
+    <HBox alignment="CENTER" spacing="20">
+        <Button text="Réinitialiser la liste" onAction="#reset"/>
+        <Button text="Déconnexion" onAction="#toLogin"/>
+    </HBox>
 </VBox>

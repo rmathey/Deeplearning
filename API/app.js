@@ -35,11 +35,7 @@ const options = {
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 
-app.use(
-  "/swagger",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument, options)
-);
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -105,7 +101,7 @@ async function authentification(username, password) {
         username: user.username,
       },
       SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: "1h" }
     );
     return token;
   } else {
@@ -212,8 +208,7 @@ async function delWord(username, word) {
     );
     if (res.modifiedCount > 0) {
       return "200";
-    }
-    else {
+    } else {
       return "409";
     }
   } catch (error) {
@@ -310,7 +305,12 @@ app.put("/modifyWord", async (req, res) => {
 });
 
 async function modifyWord(username, word1, word2) {
-  if (word1 === undefined || word2 === undefined || word1.length === 0 || word2.length === 0) {
+  if (
+    word1 === undefined ||
+    word2 === undefined ||
+    word1.length === 0 ||
+    word2.length === 0
+  ) {
     return "400";
   }
   try {
@@ -321,11 +321,10 @@ async function modifyWord(username, word1, word2) {
       { username: username, ["liste." + word1]: { $exists: true } },
       { $set: { ["liste.$." + word1]: word2 } }
     );
-    
+
     if (res.modifiedCount > 0) {
       return "200";
-    }
-    else {
+    } else {
       return "409";
     }
   } catch (error) {
@@ -336,8 +335,8 @@ async function modifyWord(username, word1, word2) {
 app.get("/checkToken", async (req, res) => {
   try {
     const headers = JSON.parse(JSON.stringify(req.headers));
-    message_retour = await checkToken(headers.jwt);
-    if (message_retour == null) {
+    const resp = await checkToken(headers.jwt);
+    if (resp == null) {
       return res.send("401");
     } else {
       return res.send("200");
@@ -356,7 +355,10 @@ async function checkToken(token) {
     }
   });
 
-  const decoded = jwt.decode(token);
+  var decoded = jwt.decode(token);
+  if (decoded !== null && decoded.exp * 1000 < Date.now()) {
+    decoded = null;
+  }
   return decoded;
 }
 

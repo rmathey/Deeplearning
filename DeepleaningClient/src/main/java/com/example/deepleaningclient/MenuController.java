@@ -5,23 +5,33 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Optional;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+
+
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.scene.Parent;
 import javafx.scene.Node;
 
 public class MenuController {
     @FXML
-    private Label usernameText;
+    private TableView<Mot> tableView;
     @FXML
-    private Label listeText;
+    private TableColumn<Mot, String> colonneMot;
+    @FXML
+    private TableColumn<Mot, String> colonneTraduction;
+    @FXML
+    private Label usernameText;
     @FXML
     private Label menuInfoText;
     @FXML
@@ -34,21 +44,24 @@ public class MenuController {
     @FXML
     public void toLogin(ActionEvent event) throws IOException {
         Parent signupViewParent = FXMLLoader.load(getClass().getResource("login-view.fxml"));
-        Scene signupViewScene = new Scene(signupViewParent, 1200, 800);
+        Scene signupViewScene = new Scene(signupViewParent, 800, 600);
         Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
         window.setScene(signupViewScene);
         window.show();
     }
 
     @FXML
-    public void reload() {
-        this.user = new User(this.jwt);
-        usernameText.setText(this.user.getUsername());
-        listeText.setText(this.user.getListe());
+    public void reload() throws IOException{
+        String response = this.checkToken();
+        if (response.equals("200")) {
+            this.user = new User(this.jwt);
+            usernameText.setText("Bienvenue " + this.user.getUsername());
+            this.fillTableView();
+        }
     }
 
     @FXML
-    public void update() {
+    public void update() throws IOException {
         String[][] header = new String[1][2];
         header[0][0] = "token";
         header[0][1] = jwt;
@@ -63,7 +76,7 @@ public class MenuController {
     }
 
     @FXML
-    public void add() {
+    public void add() throws IOException {
         String[][] header = new String[1][2];
         header[0][0] = "token";
         header[0][1] = jwt;
@@ -85,7 +98,7 @@ public class MenuController {
     }
 
     @FXML
-    public void delete() {
+    public void delete() throws IOException {
         String[][] header = new String[1][2];
         header[0][0] = "token";
         header[0][1] = jwt;
@@ -107,7 +120,7 @@ public class MenuController {
     }
 
     @FXML
-    public void reset() {
+    public void reset() throws IOException {
         String[][] header = new String[1][2];
         header[0][0] = "token";
         header[0][1] = jwt;
@@ -123,5 +136,66 @@ public class MenuController {
 
     public void setJwt(String jwt) {
         this.jwt = jwt;
+    }
+
+    private void fillTableView() {
+        ObservableList<Mot> listeMots = FXCollections.observableArrayList();
+        String [][] mots = this.user.getListe();
+        Mot mot;
+        for (int i = 0; i < mots.length; i++) {
+            mot = new Mot(mots[i][0], mots[i][1]);
+            listeMots.addAll(mot);
+        }
+        this.colonneMot.setCellValueFactory(new PropertyValueFactory<>("mot"));
+        this.colonneTraduction.setCellValueFactory(new PropertyValueFactory<>("traduction"));
+        this.tableView.setItems(listeMots);
+        this.tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    }
+
+    public String checkToken() throws IOException {
+        String[][] header = new String[1][2];
+        header[0][0] = "jwt";
+        header[0][1] = this.jwt;
+        String response = Server.APIrequest("/checkToken", "GET", header);
+        if (!response.equals("200")) {
+            this.jwtExpired();
+        }
+        return response;
+    }
+    public void jwtExpired() throws IOException {
+        this.setJwt(null);
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Attention");
+        alert.setHeaderText(null);
+        alert.setContentText("La connexion a expirée, veuillez vous reconnecter");
+
+        ButtonType buttonTypeOk = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(buttonTypeOk);
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == buttonTypeOk){
+            this.setJwt(null);
+            Stage stage = (Stage) menuInfoText.getScene().getWindow();
+            Parent root = FXMLLoader.load(getClass().getResource("login-view.fxml"));
+            Scene scene = new Scene(root, 800, 600);
+            stage.setScene(scene);
+            stage.show();
+        }
+    }
+    public static class Mot {
+        private final String mot;
+        private final String traduction;
+
+        public Mot(String mot, String traduction) {
+            this.mot = mot;
+            this.traduction = traduction;
+        }
+
+        public String getMot() {
+            return mot;
+        }
+
+        public String getTraduction() {
+            return traduction;
+        }
     }
 }

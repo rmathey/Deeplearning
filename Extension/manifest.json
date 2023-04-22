@@ -1,0 +1,10 @@
+{
+    "manifest_version": 3,
+    "name": "Deeplearning",
+    "description": "Mon application Deeplearning",
+    "version": "1.0.1",
+    "action": {
+      "default_popup": "deeplearning.html"
+    }
+  }
+  

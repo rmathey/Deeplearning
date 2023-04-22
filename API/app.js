@@ -8,7 +8,11 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const CryptoJS = require("crypto-js");
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const {
+  MongoClient,
+  ServerApiVersion,
+  MongoBatchReExecutionError,
+} = require("mongodb");
 const uri = require("./credentials.json").mongoDB;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -348,18 +352,22 @@ app.get("/checkToken", async (req, res) => {
 });
 
 async function checkToken(token) {
-  token = token.trim();
-  jwt.verify(token, SECRET, (err, decodedToken) => {
-    if (err) {
-      return false;
-    }
-  });
+  try {
+    token = token.trim();
+    jwt.verify(token, SECRET, (err, decodedToken) => {
+      if (err) {
+        return false;
+      }
+    });
 
-  var decoded = jwt.decode(token);
-  if (decoded !== null && decoded.exp * 1000 < Date.now()) {
-    decoded = null;
+    var decoded = jwt.decode(token);
+    if (decoded !== null && decoded.exp * 1000 < Date.now()) {
+      decoded = null;
+    }
+    return decoded;
+  } catch (e) {
+    return null;
   }
-  return decoded;
 }
 
 function hashPassword(password) {

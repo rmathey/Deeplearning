@@ -44,9 +44,9 @@ public class LoginController {
         try {
             String header[][] = new String[2][2];
             header[0][0] = "username";
-            header[0][1] = "dartrem2";//username;
+            header[0][1] = username;
             header[1][0] = "password";
-            header[1][1] = "password";//password;
+            header[1][1] = password;
             String response = Server.APIrequest("/signin", "GET", header);
             boolean connected = this.checkJWT(response);
 

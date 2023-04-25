@@ -5,7 +5,7 @@
   },
   "paths": {
     "/signup": {
-      "put": {
+      "post": {
         "summary": "Inscription",
         "description": "Créer un compte",
         "parameters": [
@@ -23,12 +23,18 @@
             "description": "Password",
             "required": true,
             "type": "string",
-            "format": "string"
+            "format": "password"
           }
         ],
         "responses": {
           "200": {
             "description": "Opération réussie"
+          },
+          "409": {
+            "description": "L'utilisateur existe déjà"
+          },
+          "400": {
+            "description": "Mauvaise requête"
           }
         }
       }
@@ -52,12 +58,62 @@
             "description": "Password",
             "required": true,
             "type": "string",
+            "format": "password"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          },
+          "404": {
+            "description": "Username ou mot de passe incorrect"
+          }
+        }
+      }
+    },"/checkToken": {
+      "get": {
+        "summary": "Vérifie le token",
+        "description": "Vérifie la validité d'un token",
+        "parameters": [
+          {
+            "name": "sentence",
+            "in": "query",
+            "description": "Token",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token valide"
+          },
+          "401": {
+            "description": "Token invalide"
+          }
+        }
+      }
+    },
+    "/getInfo": {
+      "get": {
+        "summary": "Informations sur l'utilisateur",
+        "description": "Informations sur l'utilisateur",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "description": "Token",
+            "required": true,
+            "type": "string",
             "format": "string"
           }
         ],
         "responses": {
           "200": {
             "description": "Opération réussie"
+          },
+          "403": {
+            "description": "Token non valide"
           }
         }
       }
@@ -87,6 +143,15 @@
         "responses": {
           "200": {
             "description": "Opération réussie"
+          },
+          "400": {
+            "description": "Mauvaise requête"
+          },
+          "403": {
+            "description": "Mauvais token"
+          },
+          "409": {
+            "description": "Mot déjà dans la liste"
           }
         }
       }
@@ -116,6 +181,15 @@
         "responses": {
           "200": {
             "description": "Opération réussie"
+          },
+          "400": {
+            "description": "Mauvaise requête"
+          },
+          "403": {
+            "description": "Mauvais token"
+          },
+          "409": {
+            "description": "Aucun mot supprimé"
           }
         }
       }
@@ -145,27 +219,15 @@
         "responses": {
           "200": {
             "description": "Opération réussie"
-          }
-        }
-      }
-    },
-    "/getInfo": {
-      "get": {
-        "summary": "Informations sur l'utilisateur",
-        "description": "Informations sur l'utilisateur",
-        "parameters": [
-          {
-            "name": "token",
-            "in": "header",
-            "description": "Token",
-            "required": true,
-            "type": "string",
-            "format": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
+          },
+          "400": {
+            "description": "Mauvaise requête"
+          },
+          "403": {
+            "description": "Mauvais token"
+          },
+          "409": {
+            "description": "Aucun mot modifié"
           }
         }
       }
@@ -187,33 +249,15 @@
         "responses": {
           "200": {
             "description": "Opération réussie"
-          }
-        }
-      }
-    },
-    "/trad": {
-      "get": {
-        "summary": "Traduire une phrase du français vers l'anglais",
-        "description": "Traduire une phrase du français vers l'anglais",
-        "parameters": [
-          {
-            "name": "sentence",
-            "in": "query",
-            "description": "Phrase",
-            "required": true,
-            "type": "string",
-            "format": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
+          },
+          "403": {
+            "description": "Opération échouée"
           }
         }
       }
     },
     "/update": {
-      "get": {
+      "put": {
         "summary": "Met à jour la liste de vocabulaire",
         "description": "Met à jour la liste de vocabulaire pour chaque mot non traduit",
         "parameters": [

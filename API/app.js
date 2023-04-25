@@ -49,9 +49,15 @@ app.post("/signup", async (req, res) => {
   const headers = JSON.parse(JSON.stringify(req.headers));
   if (headers.username !== undefined && headers.password !== undefined) {
     const username = headers.username;
-    const password = hashPassword(headers.password);
+    const password = headers.password;
+    if (password.length >= 3) {
+      var hashedPassword = hashPassword(password);
+    }
+    else {
+      var hashedPassword = "";
+    }
     if (username.length >= 3 && password.length >= 3) {
-      code_retour = await createUser(username, password);
+      code_retour = await createUser(username, hashedPassword);
     } else {
       code_retour = "400"; // Bad Request format incorrect
     }
@@ -220,6 +226,51 @@ async function delWord(username, word) {
   }
 }
 
+// Modifier un mot dans la liste de vocabulaire
+app.put("/modifyWord", async (req, res) => {
+  const headers = JSON.parse(JSON.stringify(req.headers));
+  const token = headers.token;
+  const user = await checkToken(token);
+  if (user) {
+    code_retour = await modifyWord(
+      user.username,
+      req.query.word1,
+      req.query.word2
+    );
+  } else {
+    code_retour = "403";
+  }
+  return res.send(code_retour);
+});
+
+async function modifyWord(username, word1, word2) {
+  if (
+    word1 === undefined ||
+    word2 === undefined ||
+    word1.length === 0 ||
+    word2.length === 0
+  ) {
+    return "400";
+  }
+  try {
+    const database = client.db(databaseName);
+    const users = database.collection("users");
+
+    const res = await users.updateOne(
+      { username: username, ["liste." + word1]: { $exists: true } },
+      { $set: { ["liste.$." + word1]: word2 } }
+    );
+
+    if (res.modifiedCount > 0) {
+      return "200";
+    } else {
+      return "409";
+    }
+  } catch (error) {
+    return "503";
+  }
+}
+
 // Supprimer la liste de vocabulaire d'un utilisateur
 app.put("/emptyList", async (req, res) => {
   const headers = JSON.parse(JSON.stringify(req.headers));
@@ -286,51 +337,6 @@ async function update(username) {
     );
 
     return "200";
-  } catch (error) {
-    return "503";
-  }
-}
-
-// Modifier un mot dans la liste de vocabulaire
-app.put("/modifyWord", async (req, res) => {
-  const headers = JSON.parse(JSON.stringify(req.headers));
-  const token = headers.token;
-  const user = await checkToken(token);
-  if (user) {
-    code_retour = await modifyWord(
-      user.username,
-      req.query.word1,
-      req.query.word2
-    );
-  } else {
-    code_retour = "403";
-  }
-  return res.send(code_retour);
-});
-
-async function modifyWord(username, word1, word2) {
-  if (
-    word1 === undefined ||
-    word2 === undefined ||
-    word1.length === 0 ||
-    word2.length === 0
-  ) {
-    return "400";
-  }
-  try {
-    const database = client.db(databaseName);
-    const users = database.collection("users");
-
-    const res = await users.updateOne(
-      { username: username, ["liste." + word1]: { $exists: true } },
-      { $set: { ["liste.$." + word1]: word2 } }
-    );
-
-    if (res.modifiedCount > 0) {
-      return "200";
-    } else {
-      return "409";
-    }
   } catch (error) {
     return "503";
   }

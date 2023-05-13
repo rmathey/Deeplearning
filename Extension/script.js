@@ -39,6 +39,7 @@ document.getElementById("addBtn").onclick = function () {
       .then((text) => {
         if (text === "200") {
           showMessage("Le mot " + wordValue + " a été ajouté à la liste");
+          wordInput.value = "";
         } else if (text === "409") {
           showMessage("Le mot " + wordValue + " est déjà dans la liste");
         } else if (text === "400") {

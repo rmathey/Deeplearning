@@ -1,0 +1,34 @@
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.form-control {
+    height: 50px;
+}
+
+.btn-primary {
+    width: 100%;
+    height: 50px;
+    font-size: 20px;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.info-text {
+    color: blue;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 20px;
+}

@@ -37,7 +37,6 @@ public class User {
                     JsonNode innerNode = arrayNode.get(i);
                     if (innerNode.isObject()) {
                         ObjectNode innerObjNode = (ObjectNode) innerNode;
-                        //int finalI = i;
                         int finalI = i;
                         innerObjNode.fields().forEachRemaining(entry -> {
                             String key = entry.getKey();

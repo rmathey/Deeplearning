@@ -37,27 +37,15 @@ public class SignupController {
     protected void signupClick(ActionEvent event) {
         String username = this.usernameField.getText();
         String password = this.passwordField.getText();
-
-        try {
-            String[][] header = new String[2][2];
-            header[0][0] = "username";
-            header[0][1] = username;
-            header[1][0] = "password";
-            header[1][1] = password;
-            String response = Server.APIrequest("/signup", "POST", header);
-
-            if (response.equals("200")) {
-                signupText.setText("Le compte " + username  + " a été créé !");
-            } else if (response.equals("400")) {
-                signupText.setText("Le nom d'utilisateur et le mot de passe doivent avoir 3 caractères ou plus");
-            }
-            else if (response.equals("409")) {
-                signupText.setText("Le compte " + username  + " existe déjà");
-            } else {
-                signupText.setText("Erreur lors de la création du compte !");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        String response = Server.getInstance().signup(username, password);
+        if (response.equals("200")) {
+            signupText.setText("Le compte " + username  + " a été créé !");
+        } else if (response.equals("400")) {
+            signupText.setText("Le nom d'utilisateur et le mot de passe doivent avoir 3 caractères ou plus");
+        } else if (response.equals("409")) {
+            signupText.setText("Le compte " + username  + " existe déjà");
+        } else {
+            signupText.setText("Erreur lors de la création du compte !");
         }
     }
     @FXML

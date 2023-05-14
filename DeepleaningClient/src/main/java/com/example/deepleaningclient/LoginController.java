@@ -40,44 +40,18 @@ public class LoginController {
     protected void loginClick(ActionEvent event) {
         String username = this.usernameField.getText();
         String password = this.passwordField.getText();
-
-        try {
-            String header[][] = new String[2][2];
-            header[0][0] = "username";
-            header[0][1] = username;
-            header[1][0] = "password";
-            header[1][1] = password;
-            String response = Server.APIrequest("/signin", "GET", header);
-            boolean connected = this.checkJWT(response);
-
-            if (connected) {
-                this.jwt = response;
-                loginText.setText("");
-                this.toMenu(event, "menu-view.fxml");
-            }
-            else {
-                loginText.setText("Username ou mot de passe incorrecte");
-            }
-        } catch (Exception e) {
+        String jwt = Server.getInstance().signin(username, password);
+        boolean connected = Server.getInstance().checkJWT(jwt);
+        if (jwt.equals("500")) {
             loginText.setText("Erreur inconnue");
-            e.printStackTrace();
         }
-    }
-
-    @FXML
-    public boolean checkJWT(String jwt) {
-        try {
-            String header[][] = new String[1][2];
-            header[0][0] = "jwt";
-            header[0][1] = jwt;
-            String response = Server.APIrequest("/checkToken", "GET", header);
-            char codeRetour = response.charAt(0);
-            ;
-            return codeRetour != '4';
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        else if (connected) {
+            this.jwt = jwt;
+            loginText.setText("");
+            this.toMenu(event, "menu-view.fxml");
+        }
+        else {
+            loginText.setText("Username ou mot de passe incorrecte");
         }
     }
     @FXML

@@ -38,10 +38,10 @@ document.getElementById("addBtn").onclick = function () {
       })
       .then((text) => {
         if (text === "200") {
-          showMessage("Le mot " + wordValue + " a été ajouté à la liste");
+          showMessage("Le mot a été ajouté à la liste");
           wordInput.value = "";
         } else if (text === "409") {
-          showMessage("Le mot " + wordValue + " est déjà dans la liste");
+          showMessage("Le mot est déjà dans la liste");
         } else if (text === "400") {
           showMessage("Veuillez entrer un mot");
         } else {

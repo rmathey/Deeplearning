@@ -54,7 +54,8 @@ public class MenuController {
     public void reload() throws IOException{
         String response = this.checkToken();
         if (response.equals("200")) {
-            this.user = new User(this.jwt);
+            this.user = User.getInstance();
+            this.user.reload(this.jwt);
             usernameText.setText("Bienvenue " + this.user.getUsername());
             this.fillTableView();
         }
@@ -62,10 +63,7 @@ public class MenuController {
 
     @FXML
     public void update() throws IOException {
-        String[][] header = new String[1][2];
-        header[0][0] = "token";
-        header[0][1] = jwt;
-        String response = Server.APIrequest("/update", "PUT", header);
+        String response = user.update(this.jwt);
         if (response.equals("200")) {
             menuInfoText.setText("La liste de vocabulaire a été mise à jour");
         }
@@ -77,10 +75,7 @@ public class MenuController {
 
     @FXML
     public void add() throws IOException {
-        String[][] header = new String[1][2];
-        header[0][0] = "token";
-        header[0][1] = jwt;
-        String response = Server.APIrequest("/addWord?word=" + this.addWordField.getText(), "PUT", header);
+        String response = user.add(this.jwt, this.addWordField.getText());
         if (response.equals("200")) {
             menuInfoText.setText("Le mot " + this.addWordField.getText() + " a été ajouté à la liste de vocabulaire");
             this.addWordField.setText("");
@@ -99,10 +94,7 @@ public class MenuController {
 
     @FXML
     public void delete() throws IOException {
-        String[][] header = new String[1][2];
-        header[0][0] = "token";
-        header[0][1] = jwt;
-        String response = Server.APIrequest("/delWord?word=" + this.deleteWordField.getText(), "PUT", header);
+        String response = user.delete(this.jwt, this.deleteWordField.getText());
         if (response.equals("200")) {
             menuInfoText.setText("Le mot " + this.deleteWordField.getText() + " a été supprimé de la liste de vocabulaire");
             this.deleteWordField.setText("");
@@ -121,10 +113,7 @@ public class MenuController {
 
     @FXML
     public void reset() throws IOException {
-        String[][] header = new String[1][2];
-        header[0][0] = "token";
-        header[0][1] = jwt;
-        String response = Server.APIrequest("/emptyList", "PUT", header);
+        String response = user.reset(this.jwt);
         if (response.equals("200")) {
             menuInfoText.setText("La liste de vocabulaire a bien été réinitialisée !");
         }
@@ -156,7 +145,7 @@ public class MenuController {
         String[][] header = new String[1][2];
         header[0][0] = "jwt";
         header[0][1] = this.jwt;
-        String response = Server.APIrequest("/checkToken", "GET", header);
+        String response = Server.getInstance().APIrequest("/checkToken", "GET", header);
         if (!response.equals("200")) {
             this.jwtExpired();
         }

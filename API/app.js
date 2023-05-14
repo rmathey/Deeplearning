@@ -85,7 +85,7 @@ async function createUser(username, password) {
 }
 
 // Connexion
-app.get("/signin", async (req, res) => {
+app.post("/signin", async (req, res) => {
   const headers = JSON.parse(JSON.stringify(req.headers));
   const username = headers.username;
   const password = hashPassword(headers.password);
@@ -405,21 +405,3 @@ async function translate(text) {
 app.listen(3000, () => {
   console.log("Server listening...");
 });
-
-// Supprimer tout le contenu de la collection
-app.delete("/deleteAll", async (req, res) => {
-  code_retour = await resetCollection();
-  return res.send(code_retour);
-});
-
-async function resetCollection() {
-  try {
-    const database = client.db(databaseName);
-    const users = database.collection("users");
-    const query = {};
-    const response = await users.deleteMany(query);
-    return "200"; // Collection réinitialisée
-  } catch (error) {
-    return "500"; // Erreur du serveur
-  }
-}

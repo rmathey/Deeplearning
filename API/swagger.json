@@ -40,7 +40,7 @@
       }
     },
     "/signin": {
-      "get": {
+      "post": {
         "summary": "Connexion",
         "description": "Pour s'authentifier",
         "parameters": [

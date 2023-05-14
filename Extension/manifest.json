@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Deeplearning",
-    "description": "Mon application Deeplearning",
+    "description": "Ma liste de vocabulaire personnalisée",
     "version": "1.0.1",
     "action": {
       "default_popup": "deeplearning.html"

@@ -5,7 +5,7 @@ document
     console.log(document.getElementById("username").value);
     console.log(document.getElementById("password").value);
     fetch("http://localhost:3000/signin", {
-      method: "GET",
+      method: "POST",
       headers: {
         username: document.getElementById("username").value,
         password: document.getElementById("password").value,

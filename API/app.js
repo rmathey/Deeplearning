@@ -22,7 +22,6 @@ const client = new MongoClient(uri, {
 const databaseName = "deeplearning";
 
 const SECRET = require("./credentials.json").SECRET;
-//const request = require('request');
 const cors = require("cors");
 
 // Extended: https://swagger.io/specification/#infoObject
